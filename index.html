@@ -4,8 +4,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>Swagger UI</title>
+  <link
+    rel="stylesheet"
+    href="./element-ui@2.15.8/lib/theme-chalk/index.css"
+  />
   <link rel="stylesheet" type="text/css" href="swagger-ui-tree.css" />
   <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+  <script src="./vue@2.6.14/dist/vue.js"></script>
   <link
     rel="icon"
     type="image/png"
@@ -70,11 +75,6 @@
 <div id="swagger-ui"></div>
 <script src="./swagger-ui-bundle.js"></script>
 <script src="./swagger-ui-standalone-preset.js"></script>
-<script src="./vue@2.6.14/dist/vue.js"></script>
-<link
-  rel="stylesheet"
-  href="./element-ui@2.15.8/lib/theme-chalk/index.css"
-/>
 <script src="./axios@0.27.2/dist/axios.min.js"></script>
 <script src="./element-ui@2.15.8/lib/index.js"></script>
 <script>
@@ -122,12 +122,15 @@
         }
       };
     },
-    created: function() {
-      var apiurl =
-        window.location.protocol + "//" + window.location.host++;
-      "/iotapi/dlinkjson?type=Unit";
-      axios.get(apiurl).then((data) => {
-        const { data = [] } = data;
+    mounted: function() {
+      console.log(axios)
+      const apiurl = 'http://dev.iotn2n.com/swagger.json';
+      // var apiurl =
+      //   window.location.protocol + "//" + window.location.host++;
+      // "/iotapi/dlinkjson?type=swaggerTree";
+      axios.get(apiurl).then(res => {
+        console.log(res.data);
+        const { data = [] } = res;
         if (data) {
           this.swaggerTree = data;
         }
