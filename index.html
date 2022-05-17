@@ -46,7 +46,7 @@
 <body>
 <div id="dgiot">
   <el-container class="position-tree">
-    <el-header style="height: 20px">
+    <el-header style="height: 20px;margin: 20px">
       <el-link
         type="primary"
         href="http://prod.iotn2n.com"
@@ -57,10 +57,18 @@
       </el-link>
     </el-header>
     <el-main>
+      <el-input
+        clearable
+        size="mini"
+        placeholder="输入关键字进行过滤"
+        v-model="filterText">
+      </el-input>
       <el-tree
         default-expand-all
         :data="swaggerTree"
         :props="defaultProps"
+        :filter-node-method="filterNode"
+        ref="tree"
         @node-click="handleNodeClick"
       >
       </el-tree>
@@ -79,7 +87,8 @@
 <script src="./element-ui@2.15.8/lib/index.js"></script>
 <script>
   var apiurl = window.location.protocol + "//" + window.location.host + "/swagger.json";
-  // const apiurl = 'http://dev.iotn2n.com/swagger.json';
+  // var apiurl =
+  //   window.location.protocol + "//" + window.location.hostname + ":5080" + "/swagger.json";
   window.onload = function() {
     // Begin Swagger UI call region
     const ui = SwaggerUIBundle({
@@ -99,6 +108,7 @@
     el: "#dgiot",
     data: function() {
       return {
+        filterText: "",
         nowYear: new Date().getFullYear(),
         swaggerTree: [
           {
@@ -110,7 +120,7 @@
                 label: "用户登录"
               },
               {
-                target: "#/DGIOT/post_login",
+                target: "#/DGIOT/post_logout",
                 label: "退出登录"
               }
             ]
@@ -122,12 +132,21 @@
         }
       };
     },
+    watch: {
+      filterText: {
+        handler: function(val, oldVal) {
+          if (this.$refs.tree) this.$refs.tree.filter(val);
+        },
+        immediate: true,
+        deep: true
+      }
+    },
     mounted: function() {
-      console.log(axios)
-      const apiurl = 'http://dev.iotn2n.com/swagger.json';
+      // const apiurl = 'http://dev.iotn2n.com/swagger.json';
+       var apiurl =
+         window.location.protocol + "//" + window.location.host + "/iotapi/dlinkjson?type=swaggerTree";
       // var apiurl =
-      //   window.location.protocol + "//" + window.location.host++;
-      // "/iotapi/dlinkjson?type=swaggerTree";
+      //   window.location.protocol + "//" + window.location.hostname + ":5080" + "/iotapi/dlinkjson?type=swaggerTree";
       axios.get(apiurl).then(res => {
         console.log(res.data);
         const { data = [] } = res;
@@ -137,9 +156,24 @@
       });
     },
     methods: {
+      filterNode(value, data) {
+        if (!value) return true;
+        return data.label.indexOf(value) !== -1;
+      },
       handleNodeClick(data) {
-        window.location.href = data.target;
-        window.location.reload();
+        const { target, label } = data;
+        if (target) {
+          const Swagger = document.getElementById("swagger-ui");
+          const Div = Swagger.getElementsByTagName("div");
+          for (let i = 0; i < Div.length; i++) {
+            if (Div[i].innerText === label) {
+              const parentNode = Div[i].parentNode;
+              window.location.href = target;
+              parentNode.scrollIntoView();
+              if (parentNode.getElementsByTagName("span")[1]) parentNode.getElementsByTagName("span")[1].click();
+            }
+          }
+        }
       }
     }
   });
